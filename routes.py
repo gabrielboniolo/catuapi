@@ -1,49 +1,60 @@
-from flask import render_template, request, redirect, url_for
+from flask import request, jsonify
 from main import app
 from db import db
 from models import Cafes
 
-@app.route('/')
-def index():
-    cafes = db.session.query(Cafes).all()
-    return render_template('index.html', cafes=cafes)
+@app.route('/api/cafes', methods=['GET'])
+def listar_cafes():
+    cafes = Cafes.query.all()
+    return jsonify([
+        {
+            'id': cafe.id,
+            'nome': cafe.nome,
+            'produtor': cafe.produtor,
+            'variedade': cafe.variedade,
+            'sensorial': cafe.sensorial,
+            'tipo': cafe.tipo,
+            'regiao': cafe.regiao,
+            'altitude': cafe.altitude
+        } for cafe in cafes
+    ])
 
-@app.route('/registrar', methods=['GET', 'POST'])
-def registrar_cafe():
-    if request.method == 'GET':
-        return render_template('registrar_cafe.html')
-    elif request.method == 'POST':
-        nome = request.form['nome']
-        produtor = request.form['produtor']
-        variedade = request.form['variedade']
-        sensorial = request.form['sensorial']
-        tipo = request.form['tipo']
-        regiao = request.form['regiao']
-        altitude = request.form['altitude']
+@app.route('/api/cafes', methods=['POST'])
+def adicionar_cafe():
+    data = request.get_json()
 
-        novo_cafe = Cafes(
-            nome=nome,
-            produtor=produtor,
-            variedade=variedade,
-            sensorial=sensorial,
-            tipo=tipo,
-            regiao=regiao,
-            altitude=altitude
-        )
+    novo = Cafes(
+        nome=data['nome'],
+        produtor=data['produtor'],
+        variedade=data['variedade'],
+        sensorial=data['sensorial'],
+        tipo=data['tipo'],
+        regiao=data['regiao'],
+        altitude=data['altitude']
+    )
 
-        db.session.add(novo_cafe)
-        db.session.commit()
+    db.session.add(novo)
+    db.session.commit()
 
-        return redirect(url_for('index'))
+    return jsonify({'mensagem': 'Café adicionado com sucesso'}), 201
 
-@app.route('/cafe/<int:id>')
-def visualizar_cafe(id):
+@app.route('/api/cafes/<int:id>', methods=['GET'])
+def detalhar_cafe(id):
     cafe = Cafes.query.get_or_404(id)
-    return render_template('detalhe_cafe.html', cafe=cafe)
+    return jsonify({
+        'id': cafe.id,
+        'nome': cafe.nome,
+        'produtor': cafe.produtor,
+        'variedade': cafe.variedade,
+        'sensorial': cafe.sensorial,
+        'tipo': cafe.tipo,
+        'regiao': cafe.regiao,
+        'altitude': cafe.altitude
+    })
 
-@app.route('/deletar/<int:id>', methods=['POST'])
+@app.route('/api/cafes/<int:id>', methods=['DELETE'])
 def deletar_cafe(id):
     cafe = Cafes.query.get_or_404(id)
     db.session.delete(cafe)
     db.session.commit()
-    return redirect(url_for('index'))
+    return jsonify({'mensagem': 'Café deletado com sucesso'}), 200
