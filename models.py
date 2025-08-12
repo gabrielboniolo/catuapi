@@ -5,8 +5,8 @@ class Cafe(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(50), nullable=False)
-    produtor = db.Column(db.Integer, nullable=False)
-    variedade = db.Column(db.Integer, primary_key=True)
+    produtor = db.Column(db.String(50), nullable=False)
+    variedade = db.Column(db.String(50), nullable=False)
     sensorial = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
