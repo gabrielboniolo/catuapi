@@ -4,9 +4,28 @@ from db import db
 from models import Cafe
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == 'GET':
+        return render_template('index.html')
+    elif request.method == 'POST':
+        nome = request.form('form_nome')
+        produtor = request.form('form_produtor')
+        variedade = request.form('form_variedade')
+        sensorial =  request.form('form_sensorial')
+
+        cafe = Cafe(
+            nome=nome, 
+            produtor=produtor, 
+            variedade=variedade, 
+            sensorial=sensorial
+            )
+        
+        db.session.add(cafe)
+        db.session.commit()
+
+        return redirect(url_for('index'))
+    
 
 # @app.route('/cafes', methods=['GET'])
 # def get_cafes():
