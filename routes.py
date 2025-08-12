@@ -3,6 +3,11 @@ from app import app
 from db import db
 from models import Cafe
 
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
 # @app.route('/cafes', methods=['GET'])
 # def get_cafes():
 #     return jsonify(cafes)
